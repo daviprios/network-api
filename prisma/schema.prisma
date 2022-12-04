@@ -3,16 +3,89 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./database.db?connect_timeout=5000&connection_limit=1"
+  provider = "postgres"
+  url      = "postgres://root:123456@db:5432"
 }
 
 model User {
   ID Int @id @default(autoincrement())
 
-  login String @unique
-  password String
+  name        String
+  phoneNumber String? @unique
+  email       String  @unique
+  username    String  @unique
+  password    String
+
+  avatarURL String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()
+
+  Post       Post[]
+  GroupUsers GroupUsers[]
+  Session    Session[]
+}
+
+model Group {
+  ID Int @id @default(autoincrement())
+
+  name String
+
+  Post Post[]
+
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt()
+  GroupUsers GroupUsers[]
+}
+
+enum GroupUserRole {
+  Owner
+  Administrator
+  Moderator
+  Member
+}
+
+model GroupUsers {
+  groupID Int
+  group   Group @relation(fields: [groupID], references: [ID])
+
+  userID Int
+  user   User @relation(fields: [userID], references: [ID])
+
+  role GroupUserRole
+
+  @@id([groupID, userID])
+}
+
+model Post {
+  ID Int @id @default(autoincrement())
+
+  mediaContentURL String?
+  text            String
+
+  userID Int
+  user   User @relation(fields: [userID], references: [ID])
+
+  groupID Int
+  group   Group @relation(fields: [groupID], references: [ID])
+
+  parentPostID Int    @map("PostID")
+  post         Post   @relation("PostToPost", fields: [parentPostID], references: [ID])
+  Post         Post[] @relation("PostToPost")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+}
+
+model Session {
+  ID     String @id @default(uuid())
+
+  userID Int
+  user   User   @relation(fields: [userID], references: [ID])
+}
+
+model Invite {
+  ID Int @id @default(autoincrement())
+  
+  code String @unique @default(uuid())
 }
