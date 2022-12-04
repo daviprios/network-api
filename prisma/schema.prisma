@@ -16,7 +16,7 @@ model User {
   username    String  @unique
   password    String
 
-  avatarURL String
+  avatarURL String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt()
@@ -31,10 +31,10 @@ model Group {
 
   name String
 
-  Post Post[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
 
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt()
+  Post       Post[]
   GroupUsers GroupUsers[]
 }
 
@@ -63,8 +63,8 @@ model Post {
   mediaContentURL String?
   text            String
 
-  userID Int
-  user   User @relation(fields: [userID], references: [ID])
+  userID Int?
+  user   User? @relation(fields: [userID], references: [ID], onDelete: SetNull)
 
   groupID Int
   group   Group @relation(fields: [groupID], references: [ID])
@@ -78,14 +78,14 @@ model Post {
 }
 
 model Session {
-  ID     String @id @default(uuid())
+  ID String @id @default(uuid())
 
   userID Int
-  user   User   @relation(fields: [userID], references: [ID])
+  user   User @relation(fields: [userID], references: [ID])
 }
 
 model Invite {
   ID Int @id @default(autoincrement())
-  
+
   code String @unique @default(uuid())
 }

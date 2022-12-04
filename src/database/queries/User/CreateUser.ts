@@ -1,10 +1,9 @@
 import prisma from '$database/prisma'
+import { User } from '@prisma/client'
 
-import { User } from 'src/models/UserModel'
-
-const CreateUser = async ({ data }: { data: User }) => {
+const CreateUser = async (data: User) => {
   return await prisma.user.create({
-    data,
+    data
   })
 }
 
